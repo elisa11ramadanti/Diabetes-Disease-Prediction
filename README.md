@@ -3,7 +3,7 @@
 ## Diabetes-Disease-Prediction
 **Disusun oleh: Elisa Ramadanti**
 
-Proyek ini bertujuan untuk membangun model machine learning yang dapat memprediksi risiko penyakit diabetes berdasarkan data kesehatan individu. Dengan menggunakan beberapa algoritma klasifikasi dan teknik optimasi model, diharapkan hasil prediksi dapat membantu dalam deteksi dini dan pengambilan keputusan medis yang lebih baik.
+Proyek ini bertujuan untuk membangun model prediksi risiko diabetes berdasarkan dataset yang terdiri dari beberapa fitur medis. Model yang digunakan adalah empat algoritma boosting yang populer, yaitu XGBoost, LightGBM, CatBoost, dan Gradient Boosting. Setiap model diuji dan dievaluasi menggunakan metrik seperti akurasi, precision, recall, F1-score, serta confusion matrix.
 
 ---
 
@@ -36,60 +36,71 @@ Mengembangkan model machine learning yang mampu memprediksi risiko diabetes seca
 ---
 
 ## 📁 Data Understanding
-Dataset yang digunakan berisi **1000 entri** dan **9 fitur** sebagai berikut:
-- **Pregnancies**: Jumlah kehamilan
-- **Glucose**: Kadar glukosa dalam darah
-- **BloodPressure**: Tekanan darah
-- **SkinThickness**: Ketebalan kulit
-- **Insulin**: Kadar insulin dalam darah
-- **BMI**: Indeks massa tubuh
-- **DiabetesPedigreeFunction**: Riwayat diabetes dalam keluarga
-- **Age**: Usia
-- **Diagnosis**: Klasifikasi diabetes (0 = Tidak, 1 = Ya)
+Dataset yang digunakan adalah Diabetes Prediction yang diperoleh dari Kaggle. Dataset ini bertujuan untuk memprediksi diabetes berdasarkan faktor risiko yang relevan.
 
-Dataset ini diambil dari [Kaggle - Diabetes Prediction](https://www.kaggle.com/).
-![image](https://github.com/user-attachments/assets/bcc49156-199d-42f8-bfcb-936faaa2f79d)
+1. **Jumlah Data:**  memiliki **1000 baris dengan 9 Kolom** sebagai berikut:  
+  - **Pregnancies**: Jumlah kehamilan  
+  - **Glucose**: Kadar glukosa dalam darah  
+  - **BloodPressure**: Tekanan darah  
+  - **SkinThickness**: Ketebalan lipatan kulit  
+  - **Insulin**: Kadar insulin  
+  - **BMI**: Indeks massa tubuh  
+  - **DiabetesPedigreeFunction**: Fungsi silsilah diabetes (mengindikasikan riwayat keluarga)  
+  - **Age**: Usia  
+  - **Diagnosis**: Label klasifikasi dengan nilai:  
+    - **0** = Tidak Diabetes  
+    - **1** = Diabetes  
 
-### 🔍 Exploratory Data Analysis (EDA)
-- **Visualisasi Distribusi Data**: Menggunakan histogram dan boxplot untuk melihat distribusi masing-masing fitur.
+2. **Kondisi Data:** Dataset ini memiliki ketidakseimbangan kelas pada kolom Diagnosis, dengan jumlah label "1" (diabetes) dan "0" (tidak diabetes) yang tidak merata. 
+  - Ini perlu diperhatikan untuk menghindari bias pada model prediksi yang akan dibangun.
 
-![image](https://github.com/user-attachments/assets/f32aedde-d85b-4ff8-8d1e-5a97fb4e666a)
+3. **Sumber Data:** Dataset ini diambil dari [Kaggle - Diabetes Prediction](https://www.kaggle.com/).
 
-- **Pairplot**: Digunakan untuk menganalisis hubungan antar fitur.
-  ![image](https://github.com/user-attachments/assets/102ec4fe-a8fe-4d21-aa2e-1f7fb86e994f)
+4. **Eksplorasi Data:**  beberapa teknik visualisasi dan analisis eksploratori data akan dilakukan. Misalnya:
 
-- **Boxplot**: Digunakan untuk mendeteksi outlier menggunakan metode IQR.
-  ![image](https://github.com/user-attachments/assets/f52704ac-8c8f-48e5-9212-196181d375cf)
-  ![image](https://github.com/user-attachments/assets/3adb68ae-4fa4-418a-8f59-3e95ed27f4ac)
-
-
-
-### ⚖️ Class Distribution
-- Dataset awal memiliki distribusi kelas yang tidak seimbang, di mana kelas **"Tidak Diabetes"** lebih dominan dibandingkan dengan kelas **"Diabetes"**.
-- Untuk mengatasi class imbalance, teknik **SMOTE** (Synthetic Minority Over-sampling Technique) digunakan.
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/ae7dc936-36aa-401e-8a0c-2372a9611fdc" alt="Class Distribution Before" width="40%" style="margin-right: 10px;">
-  <img src="https://github.com/user-attachments/assets/ddd9010f-b475-4c78-88f8-977365125ebb" alt="Class Distribution After" width="40%">
-</p>
-  
-
----
+  - Distribusi Data: Visualisasi distribusi nilai untuk setiap fitur seperti BMI, Glucose, dan Age untuk memahami sebaran data.
+  - Korelasi: Melakukan analisis korelasi antar fitur untuk melihat hubungan yang mungkin ada antar fitur, terutama dengan target label Diagnosis.
+  - Imbalance Handling: Menganalisis ketidakseimbangan kelas dalam Diagnosis dan menerapkan teknik seperti SMOTE (Synthetic Minority Over-sampling Technique) untuk menangani masalah tersebut.
+    
 
 ## ⚙️ Data Preparation
-1. **Handling Missing Values**:  
-   - Dataset tidak memiliki nilai kosong, sehingga tidak diperlukan imputasi.
+1. Memuat Data
+    - Data dimuat dari file CSV ke dalam sebuah dataframe menggunakan pandas. Ini memungkinkan kita untuk melihat dan mengelola data dengan mudah.
   
-2. **Outlier Removal**:  
-   - Outlier diatasi menggunakan metode **IQR (Interquartile Range)** untuk fitur numerik seperti Insulin dan BMI.
+2. Assessing Data 
+   memeriksa informasi dasar dari dataset untuk memahami strukturnya, seperti:
+    - Tipe data setiap kolom (df.info()).
+    - Memeriksa nilai yang hilang atau null (df.isnull().sum()).
+    - Memeriksa duplikasi data untuk memastikan tidak ada entri yang berulang.
+    - Melihat statistik deskriptif dari data numerik untuk memeriksa distribusi data (df.describe()).
 
-3. **Feature Scaling**:  
-   - **StandardScaler** digunakan untuk menormalisasi fitur numerik agar memiliki mean 0 dan standar deviasi 1.
+3. Exploratory Data Analysis (EDA)
+   EDA dilakukan untuk memahami pola dalam data, seperti:
+   - Distribusi Fitur Numerik: Menggunakan visualisasi histogram untuk melihat distribusi dari fitur numerik, yang dapat memberikan informasi tentang apakah ada fitur yang terdistribusi normal atau terpengaruh oleh outlier.
+   - Korelasi Antar Fitur: Menganalisis korelasi antar fitur menggunakan matriks korelasi. Ini penting untuk mengetahui apakah ada fitur yang sangat berkorelasi, yang bisa mempengaruhi kinerja model.
 
-4. **Handling Imbalanced Data**:  
-   - **SMOTE** digunakan untuk menyeimbangkan distribusi kelas target.
+5. Penanganan Missing Values dan Duplikasi  
+   - Dalam kasus ini, kita memastikan bahwa tidak ada missing values (nilai kosong) atau duplikasi yang dapat mempengaruhi analisis atau pelatihan model.
 
-5. **Data Splitting**:  
-   - Dataset dibagi menjadi **data latih (80%)** dan **data uji (20%)**.
+6. Mengatasi Outliers  
+    Outlier adalah nilai ekstrem yang dapat mempengaruhi kinerja model machine learning. Pada tahap ini, kita mengidentifikasi dan menangani outlier menggunakan metode Interquartile Range (IQR).
+   - IQR digunakan untuk mendeteksi outlier dengan menghitung nilai ambang batas bawah dan atas berdasarkan kuartil pertama (Q1) dan kuartil ketiga (Q3).
+
+7. Penanganan Data Tidak Seimbang
+Dalam dataset ini, kita mungkin memiliki distribusi kelas yang tidak seimbang, misalnya, jumlah pasien yang terdiagnosis diabetes jauh lebih sedikit dibandingkan yang tidak. Untuk menangani ini, kita menggunakan teknik SMOTE (Synthetic Minority Over-sampling Technique).
+
+SMOTE bekerja dengan membuat data sintetis dari kelas minoritas untuk menyeimbangkan jumlah data antara kelas-kelas tersebut.
+
+8. Pembagian Data (Train-Test Split)
+Setelah data diproses, kita membagi dataset menjadi dua bagian utama:
+
+Training Set (80%): Digunakan untuk melatih model.
+Testing Set (20%): Digunakan untuk menguji akurasi model yang sudah dilatih. Pembagian ini memastikan bahwa model diuji pada data yang tidak terlihat selama pelatihan.
+
+9. Feature Scaling (Normalisasi)
+Langkah selanjutnya adalah melakukan normalisasi fitur numerik. Ini penting karena beberapa algoritma machine learning sensitif terhadap skala fitur. Misalnya, jika ada fitur dengan rentang nilai yang sangat besar dan kecil, itu bisa membuat model kesulitan untuk menemukan pola yang baik.
+
+Untuk ini, kita menggunakan StandardScaler, yang mengubah fitur agar memiliki rata-rata 0 dan deviasi standar 1, membuat fitur berada pada skala yang seragam.
 
 ---
 

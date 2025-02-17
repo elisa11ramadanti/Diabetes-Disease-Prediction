@@ -83,9 +83,23 @@ Dataset yang digunakan adalah Diabetes Prediction yang diperoleh dari Kaggle. Da
 Pada tahap ini, dilakukan pemodelan menggunakan empat algoritma boosting yang populer: **XGBoost**, **LightGBM**, dan **CatBoost**. Ketiga model ini diuji dan dievaluasi menggunakan metrik akurasi, precision, recall, dan F1-score untuk menilai performa dalam memprediksi risiko diabetes.
 
 ### Cara Kerja Algoritma
-1. **XGBoost:** Algoritma boosting berbasis pohon keputusan yang membangun model secara bertahap. Parameter default digunakan sebelum hyperparameter tuning.
-2. **LightGBM:** Implementasi gradient boosting yang dikembangkan oleh Microsoft, lebih cepat dalam memproses data besar. Parameter default digunakan sebelum hyperparameter tuning.
-3. **CatBoost:** Algoritma boosting yang dirancang untuk menangani data kategorikal tanpa perlu encoding khusus. Parameter default digunakan sebelum hyperparameter tuning.
+1. **XGBoost:**
+   - **Cara kerja:** Algoritma boosting berbasis pohon keputusan yang membangun model secara bertahap. Parameter default digunakan sebelum hyperparameter tuning.
+   - **Parameter Default:** Digunakan sebelum hyperparameter tuning.
+   - **Kelebihan:** Performa tinggi pada dataset kompleks, mendukung regularisasi untuk mengurangi overfitting.
+   - **Kekurangan:** Rentan terhadap overfitting jika parameter tidak dituning dengan baik.
+   
+2. **LightGBM:**
+   - **Cara Kerja:** LightGBM adalah implementasi gradient boosting yang dikembangkan oleh Microsoft. Algoritma ini menggunakan teknik histogram-based decision trees untuk memproses data besar dengan cepat.
+   - Parameter Default: Digunakan sebelum hyperparameter tuning.
+   - Kelebihan: Lebih cepat dan efisien dibandingkan XGBoost, terutama untuk dataset besar.
+   - Kekurangan: Memerlukan tuning untuk dataset kecil agar tidak overfitting.
+
+3. **CatBoost:**
+   - **Cara Kerja:** CatBoost adalah algoritma boosting yang dirancang untuk menangani data kategorikal tanpa perlu encoding khusus. Algoritma ini juga memiliki kemampuan untuk menangani missing values secara otomatis.
+   - Parameter Default: Digunakan sebelum hyperparameter tuning.
+   - Kelebihan: Tidak memerlukan preprocessing tambahan untuk data kategorikal, performa stabil pada dataset kecil hingga besar.
+   - Kekurangan: Lebih lambat dibandingkan LightGBM untuk dataset besar.
 
 ### Hyperparameter Tuning
 Hyperparameter tuning dilakukan menggunakan GridSearchCV untuk mencari kombinasi parameter terbaik yang dapat meningkatkan performa model. Parameter terbaik yang diperoleh adalah sebagai berikut:
@@ -96,28 +110,42 @@ Hyperparameter tuning dilakukan menggunakan GridSearchCV untuk mencari kombinasi
 ---
 
 ## Evaluation
-### **Metrik Evaluasi:**
-- **Akurasi:** Rasio prediksi yang benar terhadap total prediksi.
-- **Precision:** Proporsi prediksi positif yang benar dibandingkan dengan semua prediksi positif.
-- **Recall:** Proporsi contoh positif yang berhasil diprediksi dengan benar.
-- **F1-Score:** Kombinasi harmonik antara precision dan recall.
 
+### **Metrik Evaluasi:**
+
+- **Accuracy (Akurasi):**  
+  Akurasi mengukur seberapa banyak prediksi yang benar dibandingkan dengan total prediksi yang dibuat oleh model.  
+  Rumus akurasi adalah:
+  
+  $$
+  \text{Akurasi} = \frac{\text{Jumlah Prediksi Benar}}{\text{Total Jumlah Prediksi}}
+  $$
+
+- **Precision (Presisi):**  
+  Precision mengukur proporsi prediksi positif yang benar dibandingkan dengan seluruh prediksi positif. Artinya, seberapa tepat model dalam memprediksi kelas positif.  
+ 
+- **Recall (Sensitivitas):**  
+  Recall mengukur proporsi contoh positif yang berhasil diprediksi dengan benar. Ini menunjukkan seberapa baik model dalam mendeteksi semua contoh positif.  
+  
+- **F1-Score:**  
+  F1-Score adalah kombinasi harmonik antara precision dan recall. Metrik ini digunakan untuk mengatasi trade-off antara precision dan recall, terutama ketika ada ketidakseimbangan antara kelas positif dan negatif.  
+   
 ### **Hasil Evaluasi**
 **Sebelum Menggunakan Hyperparameter Tuning**
 
-| Model         | Akurasi | Precision (0) | Precision (1) | Recall (0) | Recall (1) | F1-Score (0) | F1-Score (1) |
-|---------------|---------|---------------|---------------|------------|------------|--------------|--------------|
-| **XGBoost**   | 67.6%   | 0.69          | 0.66          | 0.63       | 0.72       | 0.66         | 0.69         |
-| **LightGBM**  | 68.3%   | 0.70          | 0.67          | 0.65       | 0.72       | 0.67         | 0.69         |
-| **CatBoost**  | 67.0%   | 0.71          | 0.65          | 0.59       | 0.76       | 0.64         | 0.70         |
+| Model         | Accuracy | Precision (0) | Precision (1) | Recall (0) | Recall (1) | F1-Score (0) | F1-Score (1) |
+|---------------|----------|---------------|---------------|------------|------------|--------------|--------------|
+| **XGBoost**   | 67.6%    | 0.69          | 0.66          | 0.63       | 0.72       | 0.66         | 0.69         |
+| **LightGBM**  | 68.3%    | 0.70          | 0.67          | 0.65       | 0.72       | 0.67         | 0.69         |
+| **CatBoost**  | 67.0%    | 0.71          | 0.65          | 0.59       | 0.76       | 0.64         | 0.70         |
 
 **Sesudah Menggunakan Hyperparameter Tuning**
 
-| Model         | Akurasi | Precision (0) | Precision (1) | Recall (0) | Recall (1) | F1-Score (0) | F1-Score (1) |
-|---------------|---------|---------------|---------------|------------|------------|--------------|--------------|
-| **XGBoost**   | 65.5%   | 0.67          | 0.64          | 0.62       | 0.69       | 0.64         | 0.67         |
-| **LightGBM**  | 69.4%   | 0.72          | 0.67          | 0.63       | 0.76       | 0.67         | 0.71         |
-| **CatBoost**  | 71.6%   | 0.74          | 0.69          | 0.66       | 0.77       | 0.70         | 0.73         |
+| Model         | Accuracy | Precision (0) | Precision (1) | Recall (0) | Recall (1) | F1-Score (0) | F1-Score (1) |
+|---------------|----------|---------------|---------------|------------|------------|--------------|--------------|
+| **XGBoost**   | 65.5%    | 0.67          | 0.64          | 0.62       | 0.69       | 0.64         | 0.67         |
+| **LightGBM**  | 69.4%    | 0.72          | 0.67          | 0.63       | 0.76       | 0.67         | 0.71         |
+| **CatBoost**  | 71.6%    | 0.74          | 0.69          | 0.66       | 0.77       | 0.70         | 0.73         |
 
 ---
 

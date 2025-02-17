@@ -30,7 +30,7 @@ Mengembangkan model machine learning yang mampu memprediksi risiko diabetes seca
 - Menentukan algoritma terbaik melalui evaluasi model menggunakan beberapa metrik evaluasi.
 
 ### 🛠️ Solution Statements
-- Menggunakan beberapa algoritma klasifikasi, terutama algoritma ensemble seperti **XGBoost**, **LightGBM**, **Gradient Boosting**, dan **CatBoost**.
+- Menggunakan beberapa algoritma klasifikasi, terutama algoritma ensemble seperti **XGBoost**, **LightGBM**, dan **CatBoost**.
 - Menerapkan **hyperparameter tuning** menggunakan GridSearchCV untuk mengoptimalkan performa model.
 
 ---
@@ -38,185 +38,119 @@ Mengembangkan model machine learning yang mampu memprediksi risiko diabetes seca
 ## 📁 Data Understanding
 Dataset yang digunakan adalah Diabetes Prediction yang diperoleh dari Kaggle. Dataset ini bertujuan untuk memprediksi diabetes berdasarkan faktor risiko yang relevan.
 
-1. **Jumlah Data:**  memiliki **1000 baris dengan 9 Kolom** sebagai berikut:  
-      - **Pregnancies**: Jumlah kehamilan  
-      - **Glucose**: Kadar glukosa dalam darah  
-      - **BloodPressure**: Tekanan darah  
-      - **SkinThickness**: Ketebalan lipatan kulit  
-      - **Insulin**: Kadar insulin  
-      - **BMI**: Indeks massa tubuh  
-      - **DiabetesPedigreeFunction**: Fungsi silsilah diabetes (mengindikasikan riwayat keluarga)  
-      - **Age**: Usia  
-      - **Diagnosis**: Label klasifikasi dengan nilai:  
-            - **0** = Tidak Diabetes  
-            - **1** = Diabetes  
+**Informasi Data:**
+1. **Jumlah Data:** Dataset terdiri dari **1000 baris** dan **9 kolom**, termasuk 8 fitur numerik dan 1 label target (`Diagnosis`).
+2. **Kondisi Data:**
+   - Dataset memiliki ketidakseimbangan kelas pada kolom Diagnosis, dengan jumlah label "1" (diabetes) sebanyak 306 dan label "0" (tidak diabetes) sebanyak 694.
+   - Tidak ada missing values atau duplikat data.
+   - Outlier ditemukan pada beberapa fitur numerik seperti `Glucose`, `BloodPressure`, dan `BMI`, yang kemudian ditangani menggunakan metode IQR.
+3. **Sumber Data:** Dataset diambil dari [Kaggle - Diabetes Prediction](https://www.kaggle.com/datasets/mrsimple07/diabetes-prediction/data).
+4. **Uraian Fitur:**
 
-2. **Kondisi Data:** Dataset ini memiliki ketidakseimbangan kelas pada kolom Diagnosis, dengan jumlah label "1" (diabetes) dan "0" (tidak diabetes) yang tidak merata. 
-      - Ini perlu diperhatikan untuk menghindari bias pada model prediksi yang akan dibangun.
+| **Fitur**                  | **Deskripsi**                                                                 |
+|----------------------------|-------------------------------------------------------------------------------|
+| Pregnancies                | Jumlah kehamilan                                                             |
+| Glucose                    | Kadar glukosa dalam darah                                                    |
+| BloodPressure              | Tekanan darah                                                                |
+| SkinThickness              | Ketebalan lipatan kulit                                                      |
+| Insulin                    | Kadar insulin                                                                |
+| BMI                        | Indeks massa tubuh                                                           |
+| DiabetesPedigreeFunction   | Fungsi silsilah diabetes (mengindikasikan riwayat keluarga)                  |
+| Age                        | Usia                                                                         |
+| Diagnosis                  | Label klasifikasi (0 = Tidak Diabetes, 1 = Diabetes)                         |
 
-3. **Sumber Data:** Dataset ini diambil dari [Kaggle - Diabetes Prediction](https://www.kaggle.com/).
+5. **Tipe Data:**  
+   - Semua fitur numerik memiliki tipe data `float64` atau `int64`.  
+   - Tidak ada fitur kategorikal yang memerlukan encoding.
+     
+6. **Exploratory Data Analysis (EDA):**
+   - Distribusi Data: Visualisasi distribusi setiap fitur.
+   - Korelasi Antar Fitur: Menggunakan heatmap untuk untuk melihat hubungan yang mungkin ada antar fitur, terutama dengan target label diagnosis
+   - Distribusi Target (Diagnosis): Melihat keseimbangan kelas target.
 
-4. **Eksplorasi Data:**  beberapa teknik visualisasi dan analisis eksploratori data akan dilakukan. Misalnya:
-
-      - Distribusi Data: Visualisasi distribusi nilai untuk setiap fitur seperti BMI, Glucose, dan Age untuk memahami sebaran data.
-      - Korelasi: Melakukan analisis korelasi antar fitur untuk melihat hubungan yang mungkin ada antar fitur, terutama dengan target label Diagnosis.
-      - Imbalance Handling: Menganalisis ketidakseimbangan kelas dalam Diagnosis dan menerapkan teknik seperti SMOTE (Synthetic Minority Over-sampling Technique) untuk menangani masalah tersebut.
-    
 ---
 
 ## ⚙️ Data Preparation
-1. Memuat Data
-    - Data dimuat dari file CSV ke dalam sebuah dataframe menggunakan pandas. Ini memungkinkan kita untuk melihat dan mengelola data dengan mudah.
-  
-2. Assessing Data
-   
-   memeriksa informasi dasar dari dataset untuk memahami strukturnya, seperti:
-    - Tipe data setiap kolom (df.info()).
-    - Memeriksa nilai yang hilang atau null (df.isnull().sum()).
-    - Memeriksa duplikasi data untuk memastikan tidak ada entri yang berulang.
-    - Melihat statistik deskriptif dari data numerik untuk memeriksa distribusi data (df.describe()).
-
-3. Exploratory Data Analysis (EDA)
-   
-   EDA dilakukan untuk memahami pola dalam data, seperti:
-   - Distribusi Fitur Numerik: Menggunakan visualisasi histogram untuk melihat distribusi dari fitur numerik, yang dapat memberikan informasi tentang apakah ada fitur yang terdistribusi normal atau terpengaruh oleh outlier.
-   - Korelasi Antar Fitur: Menganalisis korelasi antar fitur menggunakan matriks korelasi. Ini penting untuk mengetahui apakah ada fitur yang sangat berkorelasi, yang bisa mempengaruhi kinerja model.
-
-4. Penanganan Missing Values dan Duplikasi  
-   - Dalam kasus ini, kita memastikan bahwa tidak ada missing values (nilai kosong) atau duplikasi yang dapat mempengaruhi analisis atau pelatihan model.
-
-5. Mengatasi Outliers
-   
-   - Outlier adalah nilai ekstrem yang dapat mempengaruhi kinerja model machine learning. Pada tahap ini, kita mengidentifikasi dan menangani outlier menggunakan metode Interquartile Range (IQR).
-   - IQR digunakan untuk mendeteksi outlier dengan menghitung nilai ambang batas bawah dan atas berdasarkan kuartil pertama (Q1) dan kuartil ketiga (Q3).
-
-6. Penanganan Data Tidak Seimbang
-     - Dalam dataset ini, kita mungkin memiliki distribusi kelas yang tidak seimbang, misalnya, jumlah pasien yang terdiagnosis diabetes jauh lebih sedikit dibandingkan yang tidak. Untuk menangani ini, kita menggunakan teknik SMOTE (Synthetic Minority Over-sampling Technique).
-     - SMOTE bekerja dengan membuat data sintetis dari kelas minoritas untuk menyeimbangkan jumlah data antara kelas-kelas tersebut.
-
-7. Pembagian Data (Train-Test Split)
-   
-    Setelah data diproses, kita membagi dataset menjadi dua bagian utama:
-     - Training Set (80%): Digunakan untuk melatih model.
-     - Testing Set (20%): Digunakan untuk menguji akurasi model yang sudah dilatih. Pembagian ini memastikan bahwa model diuji pada data yang tidak terlihat selama pelatihan.
-
-8. Feature Scaling (Normalisasi)
-
-   - melakukan normalisasi fitur numerik. Ini penting karena beberapa algoritma machine learning sensitif terhadap skala fitur. Misalnya, jika ada fitur dengan rentang nilai yang sangat besar dan kecil, itu bisa membuat model kesulitan untuk menemukan pola yang baik.
-   - Untuk ini, menggunakan StandardScaler, yang mengubah fitur agar memiliki rata-rata 0 dan deviasi standar 1, membuat fitur berada pada skala yang seragam.
+**Tahapan Data Preparation:**
+1. **Penanganan Outlier:** Menggunakan metode IQR untuk semua fitur numerik.
+2. **Penanganan Ketidakseimbangan Data:** Menggunakan SMOTE untuk membuat data sintetis pada kelas minoritas.
+3. **Pembagian Data:** Membagi dataset menjadi 80% training set dan 20% testing set.
+4. **Feature Scaling:** Normalisasi fitur numerik menggunakan StandardScaler untuk memastikan semua fitur memiliki mean 0 dan standar deviasi 1.
 
 ---
 
 ## 🤖 Modeling
-Pada tahap ini, dilakukan pemodelan menggunakan empat algoritma boosting yang populer: **XGBoost**, **LightGBM**, **CatBoost**, dan **Gradient Boosting**. Keempat model ini diuji dan dievaluasi menggunakan metrik akurasi, precision, recall, dan F1-score untuk menilai performa dalam memprediksi risiko diabetes.
+Pada tahap ini, dilakukan pemodelan menggunakan empat algoritma boosting yang populer: **XGBoost**, **LightGBM**, dan **CatBoost**. Ketiga model ini diuji dan dievaluasi menggunakan metrik akurasi, precision, recall, dan F1-score untuk menilai performa dalam memprediksi risiko diabetes.
 
-### XGBoost
-
-XGBoost (Extreme Gradient Boosting) adalah algoritma boosting berbasis pohon keputusan yang membangun model secara bertahap. Setiap model baru mencoba memperbaiki kesalahan dari model sebelumnya. XGBoost cenderung memiliki performa yang sangat baik, terutama pada dataset yang kompleks.
-
-| Metrik       | Kelas 0 (Negatif) | Kelas 1 (Positif) |
-|--------------|-------------------|-------------------|
-| **Akurasi**  | 67.6%             | -                 |
-| **Precision**| 0.69              | 0.66              |
-| **Recall**   | 0.63              | 0.72              |
-| **F1-Score** | 0.66              | 0.69              |
-
-
-**Confusion Matrix:**
-
-![Confusion Matrix XGBoost](https://github.com/user-attachments/assets/8d1ace8c-3f88-4962-adcd-822d3454b6a2)
-
----
-
-### LightGBM
-
-LightGBM adalah implementasi dari gradient boosting yang dikembangkan oleh Microsoft dan lebih cepat dalam memproses data besar.
-
-| Metrik       | Kelas 0 (Negatif) | Kelas 1 (Positif) |
-|--------------|-------------------|-------------------|
-| **Akurasi**  | 68.3%             | -                 |
-| **Precision**| 0.70              | 0.67              |
-| **Recall**   | 0.65              | 0.72              |
-| **F1-Score** | 0.67              | 0.69              |
-
-**Confusion Matrix:**
-
-![Confusion Matrix LightGBM](https://github.com/user-attachments/assets/e71d7dda-32f2-4e31-ac90-afbf4896680d)
-
----
-
-### CatBoost
-
-CatBoost adalah algoritma boosting lain yang dirancang untuk menangani data kategorikal tanpa perlu encoding khusus.
-
-| Metrik       | Kelas 0 (Negatif) | Kelas 1 (Positif) |
-|--------------|-------------------|-------------------|
-| **Akurasi**  | 67.2%             | -                 |
-| **Precision**| 0.71              | 0.65              |
-| **Recall**   | 0.59              | 0.76              |
-| **F1-Score** | 0.64              | 0.70              |
-
-**Confusion Matrix:**
-
-![Confusion Matrix CatBoost](https://github.com/user-attachments/assets/b385149b-f0b1-4efd-9eab-190f74c8f8e9)
-
----
-
-### Gradient Boosting
-
-Gradient Boosting adalah metode boosting klasik yang biasanya lebih lambat dibandingkan dengan XGBoost dan LightGBM.
-
-| Metrik       | Kelas 0 (Negatif) | Kelas 1 (Positif) |
-|--------------|-------------------|-------------------|
-| **Akurasi**  | 61.2%             | -                 |
-| **Precision**| 0.64              | 0.59              |
-| **Recall**   | 0.50              | 0.72              |
-| **F1-Score** | 0.56              | 0.65              |
-
-**Confusion Matrix:**
-
-
-![Confusion Matrix Gradient Boosting](https://github.com/user-attachments/assets/37b35776-6b61-4f69-993c-24d45f25d937)
-
----
+### Cara Kerja Algoritma
+1. **XGBoost:** Algoritma boosting berbasis pohon keputusan yang membangun model secara bertahap. Parameter default digunakan sebelum hyperparameter tuning.
+2. **LightGBM:** Implementasi gradient boosting yang dikembangkan oleh Microsoft, lebih cepat dalam memproses data besar. Parameter default digunakan sebelum hyperparameter tuning.
+3. **CatBoost:** Algoritma boosting yang dirancang untuk menangani data kategorikal tanpa perlu encoding khusus. Parameter default digunakan sebelum hyperparameter tuning.
 
 ### Hyperparameter Tuning
-
-Hyperparameter tuning dilakukan menggunakan **GridSearchCV** untuk masing-masing model untuk menemukan parameter terbaik yang dapat meningkatkan performa model.
-
-**Hasil Perbandingan Akurasi Setelah GridSearchCV**
-
-| Model         | Akurasi   |
-|---------------|-----------|
-| **XGBoost**   | 65.5%     |
-| **LightGBM**  | 69.4%     |
-| **CatBoost**  | 71.6%     |
+Hyperparameter tuning dilakukan menggunakan GridSearchCV untuk mencari kombinasi parameter terbaik yang dapat meningkatkan performa model. Parameter terbaik yang diperoleh adalah sebagai berikut:
+1. **XGBoost:** `learning_rate=0.1, max_depth=7, n_estimators=200`
+2. **LightGBM:** `colsample_bytree=0.9, learning_rate=0.2, max_depth=-1, n_estimators=300, num_leaves=50, subsample=0.8`
+3. **CatBoost:** `border_count=32, depth=8, iterations=500, l2_leaf_reg=1, learning_rate=0.1`
 
 ---
 
 ## Evaluation
+### **Metrik Evaluasi:**
+- **Akurasi:** Rasio prediksi yang benar terhadap total prediksi.
+- **Precision:** Proporsi prediksi positif yang benar dibandingkan dengan semua prediksi positif.
+- **Recall:** Proporsi contoh positif yang berhasil diprediksi dengan benar.
+- **F1-Score:** Kombinasi harmonik antara precision dan recall.
 
-**Metrik Evaluasi:**  
-- **Akurasi:** Digunakan untuk mengukur seberapa banyak prediksi yang benar.
-- **Precision, Recall, dan F1-Score:** Digunakan untuk mengevaluasi keseimbangan antara prediksi benar (true positives), prediksi salah (false positives), dan prediksi yang terlewat (false negatives), terutama karena dataset tidak seimbang.
+### **Hasil Evaluasi**
+**Sebelum Menggunakan Hyperparameter Tuning**
+
+| Model         | Akurasi | Precision (0) | Precision (1) | Recall (0) | Recall (1) | F1-Score (0) | F1-Score (1) |
+|---------------|---------|---------------|---------------|------------|------------|--------------|--------------|
+| **XGBoost**   | 67.6%   | 0.69          | 0.66          | 0.63       | 0.72       | 0.66         | 0.69         |
+| **LightGBM**  | 68.3%   | 0.70          | 0.67          | 0.65       | 0.72       | 0.67         | 0.69         |
+| **CatBoost**  | 67.0%   | 0.71          | 0.65          | 0.59       | 0.76       | 0.64         | 0.70         |
+
+**Sesudah Menggunakan Hyperparameter Tuning**
+
+| Model         | Akurasi | Precision (0) | Precision (1) | Recall (0) | Recall (1) | F1-Score (0) | F1-Score (1) |
+|---------------|---------|---------------|---------------|------------|------------|--------------|--------------|
+| **XGBoost**   | 65.5%   | 0.67          | 0.64          | 0.62       | 0.69       | 0.64         | 0.67         |
+| **LightGBM**  | 69.4%   | 0.72          | 0.67          | 0.63       | 0.76       | 0.67         | 0.71         |
+| **CatBoost**  | 71.6%   | 0.74          | 0.69          | 0.66       | 0.77       | 0.70         | 0.73         |
+
 ---
 
 ## Conclusion
 
-Berdasarkan hasil evaluasi, **CatBoost** dengan parameter terbaik setelah GridSearchCV memberikan performa terbaik dengan akurasi mencapai **71.6%**. Secara keseluruhan, model-model boosting yang digunakan dalam proyek ini menunjukkan potensi yang baik untuk memprediksi risiko diabetes, meskipun masih ada ruang untuk perbaikan, terutama dalam meningkatkan akurasi lebih lanjut dengan tuning yang lebih dalam atau penambahan fitur lain.
+Berdasarkan hasil evaluasi, CatBoost dengan parameter terbaik setelah hyperparameter tuning memberikan performa terbaik dibandingkan model lainnya. Berikut adalah ringkasan temuan utama dari proyek ini:
 
-**Future Work:**
-- Menambahkan fitur tambahan yang relevan untuk meningkatkan akurasi.
-- Menggunakan algoritma lain untuk memverifikasi apakah ada model yang lebih baik.
+1. Perbandingan Model
+      - CatBoost : Memberikan akurasi tertinggi sebesar 71.6% , diikuti oleh LightGBM dengan akurasi 69.4% dan XGBoost dengan akurasi 65.5% .
 
+2. Performa Metrik Evaluasi
+      - Precision dan Recall :
+            1. CatBoost menunjukkan precision yang lebih tinggi untuk kelas 0 (0.74 ) dan recall yang baik untuk kelas 1 (0.77 ), menjadikannya model yang lebih sensitif terhadap risiko diabetes.
+            2. LightGBM dan XGBoost memiliki precision dan recall yang seimbang untuk kedua kelas, tetapi tidak seoptimal CatBoost.
+      - F1-Score :
+            - CatBoost mencapai F1-Score tertinggi untuk kedua kelas, yaitu 0.70 (kelas 0) dan 0.73 (kelas 1), yang menunjukkan keseimbangan antara precision dan recall.
+3. Penanganan Ketidakseimbangan Data
+      - Teknik SMOTE berhasil meningkatkan recall untuk kelas minoritas (kelas 1), yang membantu model mengenali lebih banyak kasus diabetes tanpa mengorbankan performa pada kelas mayoritas.
+4. Rekomendasi
+      - Model Terbaik : CatBoost adalah pilihan terbaik untuk prediksi risiko diabetes berdasarkan akurasi dan metrik evaluasi lainnya.
+      - Hyperparameter Tuning : Langkah ini sangat penting untuk meningkatkan performa model. Parameter terbaik yang diperoleh melalui GridSearchCV secara signifikan meningkatkan akurasi model.
+5. Future Work :
+      - Penambahan Fitur : Menambahkan fitur tambahan seperti riwayat medis keluarga atau gaya hidup dapat meningkatkan akurasi model.
+      - Teknik Optimasi Lanjutan : Menggunakan teknik optimasi lain seperti RandomizedSearchCV atau Bayesian Optimization untuk eksplorasi ruang parameter yang lebih luas.
+      - Algoritma Alternatif : Menguji algoritma lain seperti Random Forest atau Neural Networks untuk memverifikasi apakah ada model yang lebih baik.
 ---
 
 ## 📌 Referensi
 - [WHO - Diabetes](https://www.who.int/news-room/fact-sheets/detail/diabetes)
-- [Kaggle - Diabetes Prediction](https://www.kaggle.com/)
+- [Kaggle - Diabetes Prediction](https://www.kaggle.com/datasets/mrsimple07/diabetes-prediction/data)
 
 ---
 
 ## 📫 Kontak
 **Elisa Ramadanti**  
-LinkedIn: [linkedin.com/in/elisa-ramadanti](https://www.linkedin.com/in/elisa-ramadanti)  
+LinkedIn: [linkedin.com/in/elisa-ramadanti](https://www.linkedin.com/in/elisa-ramadanti)
